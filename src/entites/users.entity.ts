@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Client } from './client.entity';
+import { Trainer } from './trainer.entity';
 
 @Entity()
 export class Users {
@@ -20,16 +22,14 @@ export class Users {
   @Column('text')
   password: string;
 
+  @OneToOne(() => Trainer, (trainer) => trainer.user)
+  trainer: Trainer;
 
-  @Column({
-    type: 'integer'
-  })
-  userTypeId: number;
+  @OneToOne(() => Client, (client) => client.user)
+  client: Client;
 
-  
   // @Column({
   //   type: 'text'
   // })
   // salt?: string;
-
 }
