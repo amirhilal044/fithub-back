@@ -13,6 +13,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
+  app.enableCors({
+    origin: 'http://localhost:4200/', // Angular server
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type, Accept',
+    credentials: true
+  });
   await app.listen(3000);
 }
 bootstrap();

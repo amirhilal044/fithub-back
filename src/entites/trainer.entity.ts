@@ -13,7 +13,7 @@ export class Trainer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Users)
+  @OneToOne(() => Users, { eager: true })
   @JoinColumn()
   user: Users;
 

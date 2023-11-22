@@ -27,9 +27,4 @@ export class Users {
 
   @OneToOne(() => Client, (client) => client.user)
   client: Client;
-
-  // @Column({
-  //   type: 'text'
-  // })
-  // salt?: string;
 }
