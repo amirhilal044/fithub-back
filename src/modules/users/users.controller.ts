@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -10,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { TrainerDto } from 'src/dto/trainer.dto';
+import { VerificationDto } from 'src/dto/verification.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -54,5 +57,14 @@ export class UsersController {
     @Param('trainerId', ParseIntPipe) trainerId: number,
   ): Promise<TrainerDto> {
     return this.usersService.findTrainerWithClients(trainerId);
+  }
+
+  @Post('verify')
+  @HttpCode(HttpStatus.OK) // Set the appropriate HTTP status code
+  async verifyCodeAndCreateUser(@Body() verificationDto: VerificationDto) {
+    return this.usersService.verifyCodeAndCreateUser(
+      verificationDto.email,
+      verificationDto.code,
+    );
   }
 }

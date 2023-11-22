@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   BadRequestException,
   ConflictException,
@@ -12,6 +13,7 @@ import { TrainerDto } from 'src/dto/trainer.dto';
 import { Client } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
 import { Users } from 'src/entites/users.entity';
+import { TempStorageService } from 'src/shared/TempStorage.service';
 import { Repository } from 'typeorm';
 @Injectable()
 export class UsersService {
@@ -22,37 +24,54 @@ export class UsersService {
     private trainerRepository: Repository<Trainer>,
     @InjectRepository(Client)
     private clientRepository: Repository<Client>,
+    private readonly mailerService: MailerService,
+    private readonly tempStorageService: TempStorageService,
   ) {}
 
-  async create(addUserDto: AddUserDto): Promise<Users> {
-    const { email, username, password, userType } = addUserDto;
-
-    // Email and username uniqueness check
+  async create(addUserDto: AddUserDto): Promise<void> {
     const existingUser = await this.usersRepository.findOne({
-      where: [{ email }, { username }],
+      where: [{ email: addUserDto.email }, { username: addUserDto.username }],
     });
     if (existingUser) {
       throw new ConflictException('Email or username is already in use');
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    await this.mailerService.sendMail({
+      to: addUserDto.email,
+      subject: 'Verify Your Account',
+      text: `Your verification code is ${verificationCode}`,
+    });
 
-    // Create and save the new user
-    const newUser = this.usersRepository.create({
-      ...addUserDto,
+    await this.tempStorageService.storeVerificationCode(
+      addUserDto.email,
+      verificationCode,
+    );
+    await this.tempStorageService.storeUserData(addUserDto.email, addUserDto);
+  }
+
+  async verifyCodeAndCreateUser(email: string, code: string): Promise<Users> {
+    const storedCode = await this.tempStorageService.getVerificationCode(email);
+    if (storedCode !== code) {
+      throw new ConflictException('Verification code is incorrect');
+    }
+
+    const userData = await this.tempStorageService.getUserData(email);
+    if (!userData) {
+      throw new NotFoundException(
+        'User data not found or verification code has expired',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+    const user = this.usersRepository.create({
+      ...userData,
       password: hashedPassword,
     });
-    const user = await this.usersRepository.save(newUser);
 
-    // Handle user type
-    if (userType === 'trainer') {
-      await this.trainerRepository.save({ user });
-    } else if (userType === 'client') {
-      await this.clientRepository.save({ user });
-    } else {
-      throw new NotFoundException('Invalid user type specified');
-    }
+    await this.usersRepository.save(user);
+    await this.tempStorageService.clearVerificationData(email);
 
     return user;
   }
