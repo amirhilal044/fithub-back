@@ -1,6 +1,7 @@
 import {
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -18,5 +19,6 @@ export class Trainer {
   user: Users;
 
   @ManyToMany(() => Client, (client) => client.trainers)
+  @JoinTable()
   clients: Client[];
 }

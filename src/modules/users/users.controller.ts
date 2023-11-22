@@ -1,8 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { AddUserDto } from 'src/dto/AddUser.dto';
+import { TrainerDto } from 'src/dto/trainer.dto';
 import { UsersService } from './users.service';
-import { Client } from 'src/entites/client.entity';
-import { Trainer } from 'src/entites/trainer.entity';
 
 @Controller('users')
 export class UsersController {
@@ -37,17 +45,14 @@ export class UsersController {
   async assignClientToTrainer(
     @Param('clientId') clientId: number,
     @Param('trainerId') trainerId: number,
-  ): Promise<Trainer> {
+  ): Promise<TrainerDto> {
     return this.usersService.assignClientToTrainer(clientId, trainerId);
   }
 
-  // @Get('trainers')
-  // async getAllTrainers(): Promise<Trainer[]> {
-  //   return this.usersService.findAllTrainers();
-  // }
-
-  // @Get('clients')
-  // async getAllClients(): Promise<Client[]> {
-  //   return this.usersService.findAllClients();
-  // }
+  @Get(':trainerId/clients')
+  async getTrainerWithClients(
+    @Param('trainerId', ParseIntPipe) trainerId: number,
+  ): Promise<TrainerDto> {
+    return this.usersService.findTrainerWithClients(trainerId);
+  }
 }
