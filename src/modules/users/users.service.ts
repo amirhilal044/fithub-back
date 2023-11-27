@@ -52,7 +52,12 @@ export class UsersService {
 
   async verifyCodeAndCreateUser(email: string, code: string): Promise<Users> {
     const storedCode = await this.tempStorageService.getVerificationCode(email);
-    if (storedCode !== code) {
+    console.log(storedCode);
+    // Ensure both codes are trimmed and in lowercase for case-insensitive comparison
+    const trimmedStoredCode = storedCode?.trim().toLowerCase();
+    const trimmedCode = code.trim().toLowerCase();
+
+    if (trimmedStoredCode !== trimmedCode) {
       throw new ConflictException('Verification code is incorrect');
     }
 

@@ -17,7 +17,7 @@ async function bootstrap() {
     origin: 'http://localhost:4200/', // Angular server
     methods: 'GET,POST,PUT,DELETE',
     allowedHeaders: 'Content-Type, Accept',
-    credentials: true
+    credentials: true,
   });
   await app.listen(3000);
 }

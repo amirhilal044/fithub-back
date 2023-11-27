@@ -29,34 +29,3 @@ export class TempStorageService {
     this.userDataStore.delete(email);
   }
 }
-// import { Injectable } from '@nestjs/common';
-
-// @Injectable()
-// export class TempStorageService {
-//   private verificationCodes = new Map<string, string>();
-//   private userDataStore = new Map<string, any>();
-//   private readonly timeout = 300000; // e.g., 5 minutes
-
-//   storeVerificationCode(email: string, code: string): void {
-//     this.verificationCodes.set(email, code);
-//     setTimeout(() => this.verificationCodes.delete(email), this.timeout);
-//   }
-
-//   storeUserData(email: string, userData: any): void {
-//     this.userDataStore.set(email, userData);
-//     setTimeout(() => this.userDataStore.delete(email), this.timeout);
-//   }
-
-//   getVerificationCode(email: string): string | undefined {
-//     return this.verificationCodes.get(email);
-//   }
-
-//   getUserData(email: string): any {
-//     return this.userDataStore.get(email);
-//   }
-
-//   clearVerificationData(email: string): void {
-//     this.verificationCodes.delete(email);
-//     this.userDataStore.delete(email);
-//   }
-// }

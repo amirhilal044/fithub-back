@@ -11,16 +11,17 @@ import { TempStorageService } from './shared/TempStorage.service';
     TypeOrmModule.forRoot(typeOrmConfig),
     MailerModule.forRoot({
       transport: {
-        host: process.env.MAIL_HOST,
-        port: Number(process.env.MAIL_PORT),
-        secure: process.env.MAIL_SECURE === 'true',
+        host: 'smtp.gmail.com',
+
+        port: 465,
+        secure: true,
         auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASS,
+          user: 'growtopiay7@gmail.com',
+          pass: 'YOUR PASSWORD',
         },
       },
       defaults: {
-        from: process.env.MAIL_FROM,
+        from: 'No Reply <growtopiay7@gmail.com>',
       },
     }),
   ],
@@ -28,3 +29,10 @@ import { TempStorageService } from './shared/TempStorage.service';
   providers: [TempStorageService],
 })
 export class AppModule {}
+// host: process.env.MAIL_HOST,
+// port: Number(process.env.MAIL_PORT),
+// secure: process.env.MAIL_SECURE === 'true',
+// auth: {
+//   user: process.env.MAIL_USER,
+//   pass: process.env.MAIL_PASS,
+// },
