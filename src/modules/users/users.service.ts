@@ -29,6 +29,8 @@ export class UsersService {
   ) {}
 
   async create(addUserDto: AddUserDto): Promise<void> {
+    addUserDto.email = addUserDto.email.toLowerCase();
+
     const existingUser = await this.usersRepository.findOne({
       where: [{ email: addUserDto.email }, { username: addUserDto.username }],
     });
@@ -51,6 +53,8 @@ export class UsersService {
   }
 
   async verifyCodeAndCreateUser(email: string, code: string): Promise<Users> {
+    email = email.toLowerCase();
+
     const storedCode = await this.tempStorageService.getVerificationCode(email);
     console.log(storedCode);
     // Ensure both codes are trimmed and in lowercase for case-insensitive comparison

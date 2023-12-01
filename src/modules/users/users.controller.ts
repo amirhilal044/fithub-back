@@ -60,10 +60,10 @@ export class UsersController {
   }
 
   @Post('verify')
-  @HttpCode(HttpStatus.OK) // Set the appropriate HTTP status code
+  @HttpCode(HttpStatus.OK)
   async verifyCodeAndCreateUser(@Body() verificationDto: VerificationDto) {
     return this.usersService.verifyCodeAndCreateUser(
-      verificationDto.email,
+      verificationDto.email.toLowerCase(),
       verificationDto.code,
     );
   }

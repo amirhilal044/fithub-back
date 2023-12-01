@@ -7,25 +7,27 @@ export class TempStorageService {
   private userDataStore = new Map<string, AddUserDto>();
 
   async storeVerificationCode(email: string, code: string): Promise<void> {
-    this.verificationCodes.set(email, code);
-    // Set a timeout to delete the code after a certain period
-    setTimeout(() => this.verificationCodes.delete(email), 300000); // 5 minutes
+    const lowerCaseEmail = email.toLowerCase();
+    this.verificationCodes.set(lowerCaseEmail, code);
+    setTimeout(() => this.verificationCodes.delete(lowerCaseEmail), 300000); // 5 minutes
   }
 
   async getVerificationCode(email: string): Promise<string | undefined> {
-    return this.verificationCodes.get(email);
+    return this.verificationCodes.get(email.toLowerCase());
   }
 
   async storeUserData(email: string, userData: AddUserDto): Promise<void> {
-    this.userDataStore.set(email, userData);
+    const lowerCaseEmail = email.toLowerCase();
+    this.userDataStore.set(lowerCaseEmail, userData);
   }
 
   async getUserData(email: string): Promise<AddUserDto | undefined> {
-    return this.userDataStore.get(email);
+    return this.userDataStore.get(email.toLowerCase());
   }
 
   async clearVerificationData(email: string): Promise<void> {
-    this.verificationCodes.delete(email);
-    this.userDataStore.delete(email);
+    const lowerCaseEmail = email.toLowerCase();
+    this.verificationCodes.delete(lowerCaseEmail);
+    this.userDataStore.delete(lowerCaseEmail);
   }
 }

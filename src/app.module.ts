@@ -17,7 +17,7 @@ import { TempStorageService } from './shared/TempStorage.service';
         secure: true,
         auth: {
           user: 'growtopiay7@gmail.com',
-          pass: 'YOUR PASSWORD',
+          pass: 'exdiavbasfbeizjs',
         },
       },
       defaults: {
