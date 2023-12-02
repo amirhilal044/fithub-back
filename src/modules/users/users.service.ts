@@ -56,8 +56,6 @@ export class UsersService {
     email = email.toLowerCase();
 
     const storedCode = await this.tempStorageService.getVerificationCode(email);
-    console.log(storedCode);
-    // Ensure both codes are trimmed and in lowercase for case-insensitive comparison
     const trimmedStoredCode = storedCode?.trim().toLowerCase();
     const trimmedCode = code.trim().toLowerCase();
 
@@ -91,6 +89,12 @@ export class UsersService {
 
   async findOne(id: number): Promise<Users> {
     return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async findOneByUsernameOrEmail(identifier: string): Promise<Users | undefined> {
+    return this.usersRepository.findOne({
+      where: [{ username: identifier }, { email: identifier }],
+    });
   }
 
   async update(id: number, updateUserDto: AddUserDto): Promise<Users> {
