@@ -3,9 +3,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import { OptionsModule } from './modules/Artificial-Inteligence/AI.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { TempStorageService } from './shared/TempStorage.service';
-import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     UsersModule,
@@ -32,4 +32,3 @@ import { AuthModule } from './modules/auth/auth.module';
   providers: [TempStorageService],
 })
 export class AppModule {}
-
