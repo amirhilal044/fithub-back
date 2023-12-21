@@ -5,7 +5,7 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { OptionsModule } from './modules/Artificial-Inteligence/AI.module';
 import { UsersModule } from './modules/users/users.module';
 import { TempStorageService } from './shared/TempStorage.service';
-
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     UsersModule,
@@ -26,15 +26,10 @@ import { TempStorageService } from './shared/TempStorage.service';
         from: 'No Reply <growtopiay7@gmail.com>',
       },
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [TempStorageService],
 })
 export class AppModule {}
-// host: process.env.MAIL_HOST,
-// port: Number(process.env.MAIL_PORT),
-// secure: process.env.MAIL_SECURE === 'true',
-// auth: {
-//   user: process.env.MAIL_USER,
-//   pass: process.env.MAIL_PASS,
-// },
+
