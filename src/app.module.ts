@@ -2,12 +2,14 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
+import { OptionsModule } from './modules/Artificial-Inteligence/AI.module';
 import { UsersModule } from './modules/users/users.module';
 import { TempStorageService } from './shared/TempStorage.service';
 
 @Module({
   imports: [
     UsersModule,
+    OptionsModule,
     TypeOrmModule.forRoot(typeOrmConfig),
     MailerModule.forRoot({
       transport: {
