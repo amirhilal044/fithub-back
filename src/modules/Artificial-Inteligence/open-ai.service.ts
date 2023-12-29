@@ -1,26 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import axios from 'axios';
 import OpenAI from 'openai';
-
 @Injectable()
 export class OpenAiService {
-  private openai;
-
-  constructor() {
-    this.openai = new OpenAI({
-      apiKey: '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',
-    });
-  }
-
+  private readonly huggingFaceApiUrl = 'https://api-inference.huggingface.co/models/Rifky/Indobert-QA';
   async createWorkoutPlan(prompt: string): Promise<any> {
     try {
-      const chatCompletion = await this.openai.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: 'gpt-3.5-turbo',
-      });
-      return chatCompletion.data;
+      const response = await axios.post(
+        this.huggingFaceApiUrl,
+        { text: prompt },
+        {
+          headers: {
+            'Authorization': 'Bearer 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',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      return response.data;
     } catch (error) {
-      console.error('Error calling OpenAI API:', error);
-      throw error;
+      // Log detailed error information
+      console.error('Error sending request to Hugging Face:', error.response?.data || error.message);
+      throw new Error('Failed to create workout plan');
     }
   }
+  
 }
