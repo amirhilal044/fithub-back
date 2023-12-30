@@ -8,7 +8,7 @@ import { UsersService } from '../users/users.service';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Client } from 'src/entites/client.entity';
+import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
 import { Users } from 'src/entites/users.entity';
 import { TempStorageService } from 'src/shared/TempStorage.service';
@@ -20,7 +20,7 @@ import { TempStorageService } from 'src/shared/TempStorage.service';
       signOptions: { expiresIn: '1h' },
     }),
     UsersModule,
-    TypeOrmModule.forFeature([Users, Trainer, Client]),
+    TypeOrmModule.forFeature([Users, Trainer, Client, GhostClient]),
   ],
   providers: [AuthService, UsersService, LocalStrategy,TempStorageService],
   exports: [AuthService],
