@@ -3,10 +3,11 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Client } from './client.entity';
+import { Client, GhostClient } from './client.entity';
 import { Users } from './users.entity';
 
 @Entity()
@@ -21,4 +22,7 @@ export class Trainer {
   @ManyToMany(() => Client, (client) => client.trainers)
   @JoinTable()
   clients: Client[];
+
+  @OneToMany(() => GhostClient, (ghostClient) => ghostClient.trainer)
+  ghostClients: GhostClient[];
 }

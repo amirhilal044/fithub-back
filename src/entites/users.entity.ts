@@ -25,6 +25,6 @@ export class Users {
   @OneToOne(() => Trainer, (trainer) => trainer.user)
   trainer: Trainer;
 
-  @OneToOne(() => Client, (client) => client.user)
-  client: Client;
+  @OneToOne(() => Client, (client) => client.user, { nullable: true })
+  client: Client | null;
 }

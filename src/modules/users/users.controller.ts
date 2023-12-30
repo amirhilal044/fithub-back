@@ -11,6 +11,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { AddUserDto } from 'src/dto/AddUser.dto';
+import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
 import { TrainerDto } from 'src/dto/trainer.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
 import { UsersService } from './users.service';
@@ -66,5 +67,14 @@ export class UsersController {
       verificationDto.email.toLowerCase(),
       verificationDto.code,
     );
+  }
+
+  @Post('create-ghost-client')
+  async createGhostClient(
+    @Body() createClientDto: CreateClientDto,
+  ): Promise<GhostClientDto> {
+    const ghostClient =
+      await this.usersService.createGhostClient(createClientDto);
+    return ghostClient;
   }
 }
