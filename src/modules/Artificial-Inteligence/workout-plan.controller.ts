@@ -8,8 +8,6 @@ export class WorkoutPlanController {
 
   @Post()
   async createWorkoutPlan(@Body() workoutPlanDto: WorkoutPlanTrainerDto) {
-    // Act as my personal trainer, i want you to create me a custom workout plan based on the following data
-
     const prompt = `Act as my personal trainer, based on this information: ${JSON.stringify(
       workoutPlanDto,
     )} create me a custom workout plan`;

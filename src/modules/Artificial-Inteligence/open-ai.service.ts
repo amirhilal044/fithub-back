@@ -1,26 +1,45 @@
+// open-ai.service.ts
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import OpenAI from 'openai';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class OpenAiService {
-  private openai;
-
-  constructor() {
-    this.openai = new OpenAI({
-      apiKey: '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',
-    });
-  }
+  constructor(private httpService: HttpService) {}
 
   async createWorkoutPlan(prompt: string): Promise<any> {
+    const apiKey = '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'; // Use environment variable for the API key
+    const headersRequest = {
+      Authorization: `Bearer ${apiKey}`,
+    };
+
+    const body = {
+      inputs: prompt,
+      parameters: {
+        max_length: 500, // Adjust this value as needed
+      },
+      options: {
+        trust_remote_code: true, // Only set this if you trust the model source
+      },
+    };
+
     try {
-      const chatCompletion = await this.openai.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: 'gpt-3.5-turbo',
-      });
-      return chatCompletion.data;
+      const response = this.httpService.post(
+        'https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B',
+        body,
+        { headers: headersRequest },
+      );
+      const responseData = await lastValueFrom(response);
+      return responseData.data;
     } catch (error) {
-      console.error('Error calling OpenAI API:', error);
+      console.error('Error calling Hugging Face API:', error);
       throw error;
     }
   }
 }
+
+// READ
+// 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
+
+// WRITE
+// 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
