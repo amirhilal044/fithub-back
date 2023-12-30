@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { ClientDto } from 'src/dto/client.dto';
 import { TrainerDto } from 'src/dto/trainer.dto';
@@ -30,7 +30,6 @@ export class UsersService {
 
   async create(addUserDto: AddUserDto): Promise<void> {
     addUserDto.email = addUserDto.email.toLowerCase();
-
     const existingUser = await this.usersRepository.findOne({
       where: [{ email: addUserDto.email }, { username: addUserDto.username }],
     });
@@ -60,43 +59,72 @@ export class UsersService {
     const trimmedCode = code.trim().toLowerCase();
 
     if (trimmedStoredCode !== trimmedCode) {
-      throw new ConflictException('Verification code is incorrect');
+        throw new ConflictException('Verification code is incorrect');
     }
 
     const userData = await this.tempStorageService.getUserData(email);
     if (!userData) {
-      throw new NotFoundException(
-        'User data not found or verification code has expired',
-      );
+        throw new NotFoundException(
+            'User data not found or verification code has expired',
+        );
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
+    // Extract userType from userData
+    const { userType, ...userDataWithoutType } = userData;
+
     const user = this.usersRepository.create({
-      ...userData,
-      password: hashedPassword,
+        ...userDataWithoutType,
+        password: hashedPassword,
     });
 
     await this.usersRepository.save(user);
     await this.tempStorageService.clearVerificationData(email);
 
+    // Determine the type of user and create associated entity
+    if (userType === 'trainer') {
+        const trainer = new Trainer();
+        // Set trainer properties
+        // ...
+
+        // Associate the trainer with the user
+        trainer.user = user;
+
+        // Save the trainer
+        await this.trainerRepository.save(trainer);
+    } else if (userType === 'client') {
+        const client = new Client();
+        // Set client properties
+        // ...
+
+        // Associate the client with the user
+        client.user = user;
+
+        // Save the client
+        await this.clientRepository.save(client);
+    }
+
     return user;
-  }
+}
+
 
   async findAll(): Promise<Users[]> {
     return this.usersRepository.find();
   }
 
-  async findOne(id: number): Promise<Users> {
-    return this.usersRepository.findOne({ where: { id } });
+  async findOne(id: number): Promise<Users | null> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    return user || null;
   }
-
+  
   async findOneByUsernameOrEmail(identifier: string): Promise<Users | undefined> {
-    return this.usersRepository.findOne({
+    const user = await this.usersRepository.findOne({
       where: [{ username: identifier }, { email: identifier }],
     });
+    return user || undefined;
   }
-
+  
   async update(id: number, updateUserDto: AddUserDto): Promise<Users> {
     const user = await this.usersRepository.preload({
       id,
