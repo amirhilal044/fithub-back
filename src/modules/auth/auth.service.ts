@@ -9,12 +9,17 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/dto/Login.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { UsersService } from '../users/users.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Trainer } from 'src/entites/trainer.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    @InjectRepository(Trainer)
+    private readonly trainerRepository: Repository<Trainer>,
   ) {}
 
   async validateUser(
@@ -31,29 +36,39 @@ export class AuthService {
 
   async login(user: LoginDto): Promise<{
     accessToken: string;
-    user: { userId: number; username: string; email: string };
+    user: { userId: number; username: string; email: string; trainerId?: number };
   }> {
     const validatedUser = await this.validateUser(user.username, user.password);
-
+  
     if (!validatedUser) {
       throw new UnauthorizedException();
     }
-
+  
     const payload = {
-      sub: validatedUser.id,
+      userId: validatedUser.id,
       username: validatedUser.username,
       email: validatedUser.email,
     };
-
+  
+    // Fetch the associated Trainer entity
+    const trainer = await this.trainerRepository.findOne({
+      where: { user: validatedUser },
+    });
+  
     const accessToken = this.jwtService.sign(payload);
-
+  
+    // Add trainerId to the response if a Trainer is associated with the user
+    const userResponse = {
+      userId: payload.userId,
+      username: payload.username,
+      email: payload.email,
+      trainerId: trainer ? trainer.id : undefined,
+    };
+  
     return {
       accessToken,
-      user: {
-        userId: payload.sub,
-        username: payload.username,
-        email: payload.email,
-      },
+      user: userResponse,
     };
   }
+  
 }
