@@ -1,6 +1,6 @@
-import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
-import { AuthService } from './auth.service';
+import { AuthService, ResetPasswordDto } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
@@ -9,9 +9,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(
-    @Request() req: ExpressRequest,
-  ): Promise<{
+  async login(@Request() req: ExpressRequest): Promise<{
     accessToken: string;
     user: { id: number; username: string; email: string };
   }> {
@@ -27,5 +25,24 @@ export class AuthController {
         email: user.email,
       },
     };
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(
+    @Body('email') email: string,
+  ): Promise<{ message: string }> {
+    await this.authService.forgotPassword(email);
+    return {
+      message:
+        'If a user with that email exists, a password reset email has been sent.',
+    };
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ message: string }> {
+    await this.authService.resetPassword(resetPasswordDto);
+    return { message: 'Your password has been successfully reset.' };
   }
 }

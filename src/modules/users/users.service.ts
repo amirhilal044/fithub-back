@@ -10,11 +10,12 @@ import * as bcrypt from 'bcrypt';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { ClientDto, CreateClientDto } from 'src/dto/client.dto';
 import { TrainerDto } from 'src/dto/trainer.dto';
+import { PasswordReset } from 'src/entites/PasswordReset.entity';
 import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
 import { Users } from 'src/entites/users.entity';
 import { TempStorageService } from 'src/shared/TempStorage.service';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 @Injectable()
 export class UsersService {
   constructor(
@@ -29,6 +30,9 @@ export class UsersService {
     private ghostClientRepository: Repository<GhostClient>,
     private readonly mailerService: MailerService,
     private readonly tempStorageService: TempStorageService,
+
+    @InjectRepository(PasswordReset)
+    private readonly passwordResetRepository: Repository<PasswordReset>,
   ) {}
 
   async create(addUserDto: AddUserDto): Promise<void> {
@@ -259,5 +263,60 @@ export class UsersService {
 
     // Save the new ghost client
     return this.ghostClientRepository.save(ghostClient);
+  }
+
+  async findOneByEmail(email: string): Promise<Users | null> {
+    return this.usersRepository.findOne({ where: { email } });
+  }
+
+  async saveResetToken(email: string, token: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    let passwordReset = await this.passwordResetRepository.findOne({
+      where: { user: { id: user.id } },
+    });
+    if (!passwordReset) {
+      passwordReset = new PasswordReset();
+      passwordReset.user = user;
+    }
+    passwordReset.resetToken = token;
+    passwordReset.resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+    await this.passwordResetRepository.save(passwordReset);
+  }
+
+  async validateResetToken(
+    email: string,
+    token: string,
+  ): Promise<Users | undefined> {
+    const passwordReset = await this.passwordResetRepository.findOne({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: MoreThan(new Date()),
+      },
+      relations: ['user'],
+    });
+    if (passwordReset && passwordReset.user.email === email) {
+      return passwordReset.user;
+    }
+    return undefined;
+  }
+
+  async updatePassword(email: string, newPassword: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.save(user);
+
+    // Additionally clear any existing reset tokens for the user
+    const passwordReset = await this.passwordResetRepository.findOne({
+      where: { user: { id: user.id } },
+    });
+    if (passwordReset) {
+      await this.passwordResetRepository.remove(passwordReset);
+    }
   }
 }
