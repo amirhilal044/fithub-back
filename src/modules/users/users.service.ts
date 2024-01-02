@@ -319,4 +319,10 @@ export class UsersService {
       await this.passwordResetRepository.remove(passwordReset);
     }
   }
+  async getTrainerIdByUser(userId: number): Promise<number | null> {
+    const trainer = await this.trainerRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    return trainer ? trainer.id : null;
+  }
 }

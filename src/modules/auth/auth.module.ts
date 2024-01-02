@@ -12,6 +12,7 @@ import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
 import { Users } from 'src/entites/users.entity';
 import { TempStorageService } from 'src/shared/TempStorage.service';
+import { PasswordReset } from 'src/entites/PasswordReset.entity';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { TempStorageService } from 'src/shared/TempStorage.service';
       signOptions: { expiresIn: '1h' },
     }),
     UsersModule,
-    TypeOrmModule.forFeature([Users, Trainer, Client, GhostClient]),
+    TypeOrmModule.forFeature([Users, Trainer, Client, GhostClient, PasswordReset]),
   ],
   providers: [AuthService, UsersService, LocalStrategy,TempStorageService],
   exports: [AuthService],

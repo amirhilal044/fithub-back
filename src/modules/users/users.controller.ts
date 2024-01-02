@@ -15,6 +15,8 @@ import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
 import { TrainerDto } from 'src/dto/trainer.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
 import { UsersService } from './users.service';
+import { Repository } from 'typeorm';
+import { Trainer } from 'src/entites/trainer.entity';
 
 @Controller('users')
 export class UsersController {
@@ -76,5 +78,10 @@ export class UsersController {
     const ghostClient =
       await this.usersService.createGhostClient(createClientDto);
     return ghostClient;
+  }
+
+  @Get('get-id-by-user/:userId')
+  async getTrainerIdByUser(@Param('userId') userId: number): Promise<number | null> {
+    return this.usersService.getTrainerIdByUser(userId);
   }
 }
