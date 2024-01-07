@@ -89,12 +89,13 @@ export class UsersController {
     return this.usersService.getTrainerIdByUser(userId);
   }
 
-  @Put()
+  @Put('trainer-profile')
   @UseGuards(JwtAuthGuard)
   updateTrainerProfile(
     @User() user: any,
     @Body() trainerProfileDto: TrainerProfileDto,
   ): Promise<Trainer | null> {
+    console.log(trainerProfileDto)
     const userId = user.id;
     return this.usersService.updateTrainerProfile(userId, trainerProfileDto);
   }

@@ -8,7 +8,7 @@ import { JwtAuthGuard } from './local-auth.guard';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
