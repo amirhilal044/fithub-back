@@ -1,5 +1,6 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { LoginDto } from 'src/dto/Login.dto';
+import { UserDto } from 'src/dto/user.dto';
 import { AuthService, ResetPasswordDto } from './auth.service';
 import { JwtAuthGuard } from './local-auth.guard';
 
@@ -9,18 +10,10 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('login')
-  async login(@Request() req: ExpressRequest): Promise<{
-    accessToken: string;
-    user: {
-      id: number;
-      username: string;
-      email: string;
-      userType: string | undefined;
-    };
-  }> {
-    const { accessToken, user } = await this.authService.login(req.body);
-
-    console.log(user);
+  async login(
+    @Body() loginDto: LoginDto,
+  ): Promise<{ accessToken: string; user: UserDto }> {
+    const { accessToken, user } = await this.authService.login(loginDto);
 
     return {
       accessToken,

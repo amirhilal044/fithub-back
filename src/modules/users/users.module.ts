@@ -5,7 +5,6 @@ import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
 import { Users } from 'src/entites/users.entity';
 import { TempStorageService } from 'src/shared/TempStorage.service';
-import { SharedModule } from 'src/shared/shared.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -20,7 +19,6 @@ import { UsersService } from './users.service';
       GhostClient,
       PasswordReset,
     ]),
-    SharedModule,
   ],
   exports: [UsersService],
 })
