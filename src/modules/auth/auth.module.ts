@@ -10,7 +10,7 @@ import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
 import { Users } from 'src/entites/users.entity';
 import { TempStorageService } from 'src/shared/TempStorage.service';
-import { UsersModule } from '../users/users.module';
+import { SharedModule } from 'src/shared/shared.module';
 import { UsersService } from '../users/users.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
@@ -24,7 +24,7 @@ import { JwtAuthGuard } from './local-auth.guard';
         'e4df0955c771cc403d9def4c3277a0b6c8e4bdf4ece422d27876f8ed54a4eb88',
       signOptions: { expiresIn: '1h' },
     }),
-    UsersModule,
+    SharedModule,
     TypeOrmModule.forFeature([
       Users,
       Trainer,
