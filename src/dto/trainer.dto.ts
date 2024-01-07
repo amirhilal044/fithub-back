@@ -7,3 +7,18 @@ export class TrainerDto {
   clients: ClientDto[];
   // Include any other trainer-specific properties
 }
+
+export class TrainerProfileDto {
+  readonly firstName?: string;
+  readonly lastName?: string;
+  readonly briefBio?: string;
+  readonly profilePicture?: string;
+  readonly specialities?: string[];
+  readonly educationalBackground?: string;
+  readonly certifications?: string[];
+  readonly phoneNumber?: string;
+  readonly email?: string;
+  readonly tiktok?: string;
+  readonly instagram?: string;
+  readonly linkedin?: string;
+}

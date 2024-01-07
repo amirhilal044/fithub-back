@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   JoinColumn,
   JoinTable,
@@ -25,4 +26,40 @@ export class Trainer {
 
   @OneToMany(() => GhostClient, (ghostClient) => ghostClient.trainer)
   ghostClients: GhostClient[];
+
+  @Column({ nullable: true })
+  firstName: string;
+
+  @Column({ nullable: true })
+  lastName: string;
+
+  @Column({ nullable: true, type: 'text' })
+  briefBio: string;
+
+  @Column({ nullable: true })
+  profilePicture: string;
+
+  @Column('simple-array', { nullable: true })
+  specialities: string[];
+
+  @Column({ nullable: true, type: 'text' })
+  educationalBackground: string;
+
+  @Column('simple-array', { nullable: true })
+  certifications: string[];
+
+  @Column({ nullable: true })
+  phoneNumber: string;
+
+  @Column({ nullable: true })
+  email: string;
+
+  @Column({ nullable: true })
+  tiktok: string;
+
+  @Column({ nullable: true })
+  instagram: string;
+
+  @Column({ nullable: true })
+  linkedin: string;
 }

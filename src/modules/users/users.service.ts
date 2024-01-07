@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { ClientDto, CreateClientDto } from 'src/dto/client.dto';
-import { TrainerDto } from 'src/dto/trainer.dto';
+import { TrainerDto, TrainerProfileDto } from 'src/dto/trainer.dto';
 import { PasswordReset } from 'src/entites/PasswordReset.entity';
 import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
@@ -34,6 +34,10 @@ export class UsersService {
     @InjectRepository(PasswordReset)
     private readonly passwordResetRepository: Repository<PasswordReset>,
   ) {}
+
+  async findById(id: number): Promise<Users | null> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
 
   async create(addUserDto: AddUserDto): Promise<void> {
     addUserDto.email = addUserDto.email.toLowerCase();
@@ -324,5 +328,13 @@ export class UsersService {
       where: { user: { id: userId } },
     });
     return trainer ? trainer.id : null;
+  }
+
+  async updateTrainerProfile(
+    id: number,
+    trainerProfileDto: TrainerProfileDto,
+  ): Promise<Trainer | null> {
+    await this.trainerRepository.update(id, trainerProfileDto);
+    return this.trainerRepository.findOne({ where: { id } });
   }
 }

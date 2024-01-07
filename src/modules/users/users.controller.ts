@@ -9,14 +9,16 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { User } from 'src/decorators/user.decorator';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
-import { TrainerDto } from 'src/dto/trainer.dto';
+import { TrainerDto, TrainerProfileDto } from 'src/dto/trainer.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
-import { UsersService } from './users.service';
-import { Repository } from 'typeorm';
 import { Trainer } from 'src/entites/trainer.entity';
+import { JwtAuthGuard } from '../auth/local-auth.guard';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -81,7 +83,19 @@ export class UsersController {
   }
 
   @Get('get-id-by-user/:userId')
-  async getTrainerIdByUser(@Param('userId') userId: number): Promise<number | null> {
+  async getTrainerIdByUser(
+    @Param('userId') userId: number,
+  ): Promise<number | null> {
     return this.usersService.getTrainerIdByUser(userId);
+  }
+
+  @Put()
+  @UseGuards(JwtAuthGuard)
+  updateTrainerProfile(
+    @User() user: any,
+    @Body() trainerProfileDto: TrainerProfileDto,
+  ): Promise<Trainer | null> {
+    const userId = user.id;
+    return this.usersService.updateTrainerProfile(userId, trainerProfileDto);
   }
 }
