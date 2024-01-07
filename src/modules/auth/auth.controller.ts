@@ -11,7 +11,7 @@ export class AuthController {
   @Post('login')
   async login(@Request() req: ExpressRequest): Promise<{
     accessToken: string;
-    user: { id: number; username: string; email: string };
+    user: { id: number; username: string; email: string , userType: string|undefined};
   }> {
     const { accessToken, user } = await this.authService.login(req.body);
 
@@ -23,6 +23,7 @@ export class AuthController {
         id: user.userId,
         username: user.username,
         email: user.email,
+        userType: user.userType,
       },
     };
   }
