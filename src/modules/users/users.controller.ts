@@ -13,12 +13,13 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
 import { AddUserDto } from 'src/dto/AddUser.dto';
-import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
+import { ClientDto, CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
 import { TrainerDto, TrainerProfileDto } from 'src/dto/trainer.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
 import { Trainer } from 'src/entites/trainer.entity';
 import { JwtAuthGuard } from '../auth/local-auth.guard';
 import { UsersService } from './users.service';
+import { Client } from 'src/entites/client.entity';
 
 @Controller('users')
 export class UsersController {
@@ -57,13 +58,14 @@ export class UsersController {
     return this.usersService.assignClientToTrainer(clientId, trainerId);
   }
 
-  @Get(':trainerId/clients')
+  @Get(':userId/clients')
   async getTrainerWithClients(
-    @Param('trainerId', ParseIntPipe) trainerId: number,
-  ): Promise<TrainerDto> {
-    return this.usersService.findTrainerWithClients(trainerId);
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<ClientDto[]> {
+    const trainerId = await this.usersService.findTrainerIdByUserId(userId);
+    return this.usersService.findTrainerClients(trainerId);
   }
-
+  
   @Post('verify')
   @HttpCode(HttpStatus.OK)
   async verifyCodeAndCreateUser(@Body() verificationDto: VerificationDto) {

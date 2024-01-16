@@ -210,42 +210,34 @@ export class UsersService {
 
     return trainerDto;
   }
-  async findTrainerWithClients(trainerId: number): Promise<TrainerDto> {
+
+  async findTrainerIdByUserId(userId: number): Promise<number> {
+    const trainer = await this.trainerRepository.findOne({
+      where: { user: { id: userId } },
+    });
+  
+    if (!trainer) {
+      throw new NotFoundException(`Trainer with user ID ${userId} not found`);
+    }
+  
+    return trainer.id;
+  }
+
+  async findTrainerClients(trainerId: number): Promise<ClientDto[]> {
     const trainer = await this.trainerRepository.findOne({
       where: { id: trainerId },
       relations: ['clients', 'clients.user'],
     });
-
+  
     if (!trainer) {
       throw new NotFoundException(`Trainer with ID ${trainerId} not found`);
     }
-
-    // Transform to TrainerDto, excluding sensitive information
-    const trainerDto: TrainerDto = {
-      id: trainer.id,
-      user: {
-        id: trainer.user.id,
-        username: trainer.user.username,
-        email: trainer.user.email,
-        // Do not include the password field
-      },
-      clients: trainer.clients.map(
-        (client) =>
-          ({
-            id: client.id,
-            user: {
-              id: client?.user?.id,
-              username: client?.user?.username,
-              email: client?.user?.email,
-              // Do not include the password field
-            },
-          }) as ClientDto,
-      ),
-      // Add any additional trainer-specific properties
-    };
-
-    return trainerDto;
+  
+    const clients: ClientDto[] = trainer.clients
+  
+    return clients;
   }
+  
 
   async createGhostClient(
     createClientDto: CreateClientDto,
