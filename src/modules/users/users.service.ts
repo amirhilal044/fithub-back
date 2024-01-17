@@ -331,10 +331,37 @@ export class UsersService {
   }
 
   async updateTrainerProfile(
-    id: number,
+    userId: number,
     trainerProfileDto: TrainerProfileDto,
   ): Promise<Trainer | null> {
-    await this.trainerRepository.update(id, trainerProfileDto);
-    return this.trainerRepository.findOne({ where: { id } });
+    const trainer = await this.trainerRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!trainer) {
+      throw new NotFoundException(`Trainer with user ID ${userId} not found.`);
+    }
+
+    const updateData: Partial<Trainer> = {};
+    (Object.keys(trainerProfileDto) as Array<keyof TrainerProfileDto>).forEach(
+      (key) => {
+        if (trainerProfileDto[key] !== undefined) {
+          updateData[key] = trainerProfileDto[key];
+        }
+      },
+    );
+
+    if (trainerProfileDto.hasOwnProperty('educationalBackground')) {
+      updateData.educationalBackground = JSON.stringify(
+        trainerProfileDto.educationalBackground,
+      );
+    }
+
+    await this.trainerRepository.update(trainer.id, updateData);
+
+    return this.trainerRepository.findOne({
+      where: { id: trainer.id },
+      relations: ['user'],
+    });
   }
 }

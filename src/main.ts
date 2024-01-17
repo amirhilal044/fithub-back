@@ -14,9 +14,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors({
-    origin: 'http://localhost:4200/', // Angular server
+    origin: 'http://localhost:4200', // Angular server
     methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,
   });
   await app.listen(3000);

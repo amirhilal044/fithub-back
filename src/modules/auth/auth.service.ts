@@ -55,25 +55,19 @@ export class AuthService {
     };
   }> {
     const validatedUser = await this.validateUser(user.username, user.password);
-  
     if (!validatedUser) {
       throw new UnauthorizedException();
     }
-  
     const payload = {
       userId: validatedUser.id,
       username: validatedUser.username,
       email: validatedUser.email,
     };
-  
     const trainer = await this.trainerRepository.findOne({
       where: { user: validatedUser },
     });
-  
     const userType = trainer ? 'trainer' : 'client';
-  
     const accessToken = this.jwtService.sign(payload);
-  
     const userResponse = {
       userId: payload.userId,
       username: payload.username,
@@ -81,13 +75,12 @@ export class AuthService {
       trainerId: trainer ? trainer.id : undefined,
       userType, // Add userType to the response
     };
-  
     return {
       accessToken,
       user: userResponse,
     };
   }
-  
+
   async forgotPassword(email: string): Promise<void> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {

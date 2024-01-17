@@ -15,6 +15,7 @@ import { User } from 'src/decorators/user.decorator';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
 import { TrainerDto, TrainerProfileDto } from 'src/dto/trainer.dto';
+import { UserDto } from 'src/dto/user.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
 import { Trainer } from 'src/entites/trainer.entity';
 import { JwtAuthGuard } from '../auth/local-auth.guard';
@@ -89,13 +90,12 @@ export class UsersController {
     return this.usersService.getTrainerIdByUser(userId);
   }
 
-  @Put('trainer-profile')
+  @Post('trainer-profile')
   @UseGuards(JwtAuthGuard)
   updateTrainerProfile(
-    @User() user: any,
+    @User() user: UserDto,
     @Body() trainerProfileDto: TrainerProfileDto,
   ): Promise<Trainer | null> {
-    console.log(trainerProfileDto)
     const userId = user.id;
     return this.usersService.updateTrainerProfile(userId, trainerProfileDto);
   }
