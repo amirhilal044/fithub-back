@@ -27,4 +27,7 @@ export class Users {
 
   @OneToOne(() => Client, (client) => client.user, { nullable: true })
   client: Client | null;
+
+  @Column('text', { nullable: true })
+  googleCalendarToken: string;
 }

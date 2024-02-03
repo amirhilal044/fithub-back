@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import { OptionsModule } from './modules/Artificial-Inteligence/AI.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CalendarModule } from './modules/google-calendar/calendar.module';
 import { UsersModule } from './modules/users/users.module';
 import { TempStorageService } from './shared/TempStorage.service';
 @Module({
@@ -27,6 +28,7 @@ import { TempStorageService } from './shared/TempStorage.service';
       },
     }),
     AuthModule,
+    CalendarModule,
   ],
   controllers: [],
   providers: [TempStorageService],

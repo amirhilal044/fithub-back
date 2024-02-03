@@ -215,11 +215,11 @@ export class UsersService {
     const trainer = await this.trainerRepository.findOne({
       where: { user: { id: userId } },
     });
-  
+
     if (!trainer) {
       throw new NotFoundException(`Trainer with user ID ${userId} not found`);
     }
-  
+
     return trainer.id;
   }
 
@@ -228,16 +228,15 @@ export class UsersService {
       where: { id: trainerId },
       relations: ['clients', 'clients.user'],
     });
-  
+
     if (!trainer) {
       throw new NotFoundException(`Trainer with ID ${trainerId} not found`);
     }
-  
-    const clients: ClientDto[] = trainer.clients
-  
+
+    const clients: ClientDto[] = trainer.clients;
+
     return clients;
   }
-  
 
   async createGhostClient(
     createClientDto: CreateClientDto,
@@ -355,5 +354,14 @@ export class UsersService {
       where: { id: trainer.id },
       relations: ['user'],
     });
+  }
+
+  async saveGoogleCalendarToken(userId: number, token: string): Promise<void> {
+    await this.usersRepository.update(userId, { googleCalendarToken: token });
+  }
+
+  async getGoogleCalendarToken(userId: number): Promise<string | null> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    return user ? user.googleCalendarToken : null;
   }
 }
