@@ -20,7 +20,6 @@ import { VerificationDto } from 'src/dto/verification.dto';
 import { Trainer } from 'src/entites/trainer.entity';
 import { JwtAuthGuard } from '../auth/local-auth.guard';
 import { UsersService } from './users.service';
-import { Client } from 'src/entites/client.entity';
 
 @Controller('users')
 export class UsersController {
@@ -63,10 +62,11 @@ export class UsersController {
   async getTrainerWithClients(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<ClientDto[]> {
-    const trainerId = await this.usersService.findTrainerIdByUserId(userId);
+    const trainerId = (await this.usersService.findTrainerIdByUserId(userId))
+      .id;
     return this.usersService.findTrainerClients(trainerId);
   }
-  
+
   @Post('verify')
   @HttpCode(HttpStatus.OK)
   async verifyCodeAndCreateUser(@Body() verificationDto: VerificationDto) {
@@ -100,5 +100,23 @@ export class UsersController {
   ): Promise<Trainer | null> {
     const userId = user.id;
     return this.usersService.updateTrainerProfile(userId, trainerProfileDto);
+  }
+
+  @Get('trainer-profile/:id')
+  @UseGuards(JwtAuthGuard)
+  async getTrainerProfile(@Param('id') userId: number): Promise<Trainer> {
+    try {
+      const id = userId;
+      const trainerProfile = await this.usersService.findTrainerIdByUserId(id);
+
+      if (!trainerProfile) {
+        throw new Error('Trainer profile not found');
+      }
+      return trainerProfile;
+    } catch (error) {
+      // Handle the error appropriately, log it, or throw a custom error
+      console.error(`Error fetching trainer profile: ${error.message}`);
+      throw new Error('Unable to fetch trainer profile');
+    }
   }
 }

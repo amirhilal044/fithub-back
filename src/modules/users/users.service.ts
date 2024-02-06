@@ -211,7 +211,7 @@ export class UsersService {
     return trainerDto;
   }
 
-  async findTrainerIdByUserId(userId: number): Promise<number> {
+  async findTrainerIdByUserId(userId: number): Promise<Trainer> {
     const trainer = await this.trainerRepository.findOne({
       where: { user: { id: userId } },
     });
@@ -220,7 +220,7 @@ export class UsersService {
       throw new NotFoundException(`Trainer with user ID ${userId} not found`);
     }
   
-    return trainer.id;
+    return trainer;
   }
 
   async findTrainerClients(trainerId: number): Promise<ClientDto[]> {
