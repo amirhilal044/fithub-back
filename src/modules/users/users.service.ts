@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { ClientDto, CreateClientDto } from 'src/dto/client.dto';
-import { TrainerDto, TrainerProfileDto } from 'src/dto/trainer.dto';
+import { TrainerDto } from 'src/dto/trainer.dto';
 import { PasswordReset } from 'src/entites/PasswordReset.entity';
 import { Client, GhostClient } from 'src/entites/client.entity';
 import { Trainer } from 'src/entites/trainer.entity';
@@ -154,7 +154,7 @@ export class UsersService {
       throw new NotFoundException(`User with ID "${id}" not found`);
     }
   }
-
+  ////////////////////////////////////////////////////////////////
   async assignClientToTrainer(
     clientId: number,
     trainerId: number,
@@ -191,7 +191,6 @@ export class UsersService {
         id: trainer.user.id,
         username: trainer.user.username,
         email: trainer.user.email,
-        // Do not include the password field
       },
       clients: trainer.clients.map(
         (client) =>
@@ -210,34 +209,6 @@ export class UsersService {
 
     return trainerDto;
   }
-
-  async findTrainerIdByUserId(userId: number): Promise<Trainer> {
-    const trainer = await this.trainerRepository.findOne({
-      where: { user: { id: userId } },
-    });
-  
-    if (!trainer) {
-      throw new NotFoundException(`Trainer with user ID ${userId} not found`);
-    }
-  
-    return trainer;
-  }
-
-  async findTrainerClients(trainerId: number): Promise<ClientDto[]> {
-    const trainer = await this.trainerRepository.findOne({
-      where: { id: trainerId },
-      relations: ['clients', 'clients.user'],
-    });
-  
-    if (!trainer) {
-      throw new NotFoundException(`Trainer with ID ${trainerId} not found`);
-    }
-  
-    const clients: ClientDto[] = trainer.clients
-  
-    return clients;
-  }
-  
 
   async createGhostClient(
     createClientDto: CreateClientDto,
@@ -314,46 +285,5 @@ export class UsersService {
     if (passwordReset) {
       await this.passwordResetRepository.remove(passwordReset);
     }
-  }
-  async getTrainerIdByUser(userId: number): Promise<number | null> {
-    const trainer = await this.trainerRepository.findOne({
-      where: { user: { id: userId } },
-    });
-    return trainer ? trainer.id : null;
-  }
-
-  async updateTrainerProfile(
-    userId: number,
-    trainerProfileDto: TrainerProfileDto,
-  ): Promise<Trainer | null> {
-    const trainer = await this.trainerRepository.findOne({
-      where: { user: { id: userId } },
-    });
-
-    if (!trainer) {
-      throw new NotFoundException(`Trainer with user ID ${userId} not found.`);
-    }
-
-    const updateData: Partial<Trainer> = {};
-    (Object.keys(trainerProfileDto) as Array<keyof TrainerProfileDto>).forEach(
-      (key) => {
-        if (trainerProfileDto[key] !== undefined) {
-          updateData[key] = trainerProfileDto[key];
-        }
-      },
-    );
-
-    if (trainerProfileDto.hasOwnProperty('educationalBackground')) {
-      updateData.educationalBackground = JSON.stringify(
-        trainerProfileDto.educationalBackground,
-      );
-    }
-
-    await this.trainerRepository.update(trainer.id, updateData);
-
-    return this.trainerRepository.findOne({
-      where: { id: trainer.id },
-      relations: ['user'],
-    });
   }
 }

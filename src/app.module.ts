@@ -6,6 +6,7 @@ import { OptionsModule } from './modules/Artificial-Inteligence/AI.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { TempStorageService } from './shared/TempStorage.service';
+import { TrainerProfileModule } from './trainer-profile/trainer-profile.module';
 @Module({
   imports: [
     UsersModule,
@@ -27,6 +28,7 @@ import { TempStorageService } from './shared/TempStorage.service';
       },
     }),
     AuthModule,
+    TrainerProfileModule,
   ],
   controllers: [],
   providers: [TempStorageService],
