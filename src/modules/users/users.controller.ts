@@ -69,11 +69,4 @@ export class UsersController {
       await this.usersService.createGhostClient(createClientDto);
     return ghostClient;
   }
-
-  // @Get('get-id-by-user/:userId')
-  // async getTrainerIdByUser(
-  //   @Param('userId') userId: number,
-  // ): Promise<number | null> {
-  //   return this.usersService.getTrainerIdByUser(userId);
-  // }
 }

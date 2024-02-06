@@ -8,11 +8,10 @@ import { UsersService } from './../modules/users/users.service';
 import { TrainerProfileService } from './trainer-profile.service';
 
 @UseGuards(JwtAuthGuard)
-@Controller('trainer-profile')
+@Controller('trainer')
 export class TrainerProfileController {
   constructor(
     private trainerProfileService: TrainerProfileService,
-    private usersService: UsersService,
   ) {}
 
   @Post('update')
