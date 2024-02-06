@@ -102,11 +102,11 @@ export class UsersController {
     return this.usersService.updateTrainerProfile(userId, trainerProfileDto);
   }
 
-  @Get('trainer-profile/:id')
+  @Get('trainer-profile')
   @UseGuards(JwtAuthGuard)
-  async getTrainerProfile(@Param('id') userId: number): Promise<Trainer> {
+  async getTrainerProfile(@User() user:UserDto): Promise<Trainer> {
     try {
-      const id = userId;
+      const id = user.id;
       const trainerProfile = await this.usersService.findTrainerIdByUserId(id);
 
       if (!trainerProfile) {
@@ -114,7 +114,6 @@ export class UsersController {
       }
       return trainerProfile;
     } catch (error) {
-      // Handle the error appropriately, log it, or throw a custom error
       console.error(`Error fetching trainer profile: ${error.message}`);
       throw new Error('Unable to fetch trainer profile');
     }
