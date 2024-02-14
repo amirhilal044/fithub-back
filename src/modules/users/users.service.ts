@@ -286,4 +286,14 @@ export class UsersService {
       await this.passwordResetRepository.remove(passwordReset);
     }
   }
+
+  async searchByUsername(username: string): Promise<Users[]> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('LOWER(user.username) LIKE LOWER(:username)', {
+        username: `%${username}%`,
+      })
+      .select(['user.id', 'user.username', 'user.email'])
+      .getMany();
+  }
 }

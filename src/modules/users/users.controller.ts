@@ -8,15 +8,24 @@ import {
   Param,
   Post,
   Put,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AddUserDto } from 'src/dto/AddUser.dto';
 import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
+import { JwtAuthGuard } from '../auth/local-auth.guard';
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('search')
+  @UseGuards(JwtAuthGuard)
+  searchUsers(@Query('query') query: string) {
+    return this.usersService.searchByUsername(query);
+  }
 
   @Post()
   create(@Body() addUserDto: AddUserDto) {
