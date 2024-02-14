@@ -1,18 +1,16 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
+import { CreateBundleDto } from 'src/dto/create-bundle.dto';
 import { TrainerProfileDto } from 'src/dto/trainer.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { Trainer } from 'src/entites/trainer.entity';
 import { JwtAuthGuard } from 'src/modules/auth/local-auth.guard';
-import { UsersService } from './../modules/users/users.service';
 import { TrainerProfileService } from './trainer-profile.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('trainer')
 export class TrainerProfileController {
-  constructor(
-    private trainerProfileService: TrainerProfileService,
-  ) {}
+  constructor(private trainerProfileService: TrainerProfileService) {}
 
   @Post('update')
   updateTrainerProfile(
@@ -29,5 +27,24 @@ export class TrainerProfileController {
   @Get('show')
   findTrainerProfileWithClients(@User() user: UserDto) {
     return this.trainerProfileService.findTrainerByUserId(user.id);
+  }
+
+  @Get('clients')
+  getClientsByTrainer(@User() user: UserDto) {
+    const userId = user.id;
+
+    return this.trainerProfileService.getClientsByTrainer(userId);
+  }
+
+  @Post('create-bundle')
+  createBundleForClient(
+    @User() user: UserDto,
+    @Body() createBundleDto: CreateBundleDto,
+  ) {
+    const userId = user.id;
+    return this.trainerProfileService.createBundleForClient(
+      createBundleDto,
+      userId,
+    );
   }
 }

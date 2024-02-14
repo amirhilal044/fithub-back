@@ -8,15 +8,26 @@ import {
   Param,
   Post,
   Put,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
+import { User } from 'src/decorators/user.decorator';
 import { AddUserDto } from 'src/dto/AddUser.dto';
-import { CreateClientDto, GhostClientDto } from 'src/dto/client.dto';
+import { CreateGhostClientDto } from 'src/dto/client.dto';
+import { UserDto } from 'src/dto/user.dto';
 import { VerificationDto } from 'src/dto/verification.dto';
+import { JwtAuthGuard } from '../auth/local-auth.guard';
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('search')
+  @UseGuards(JwtAuthGuard)
+  searchUsers(@Query('query') query: string) {
+    return this.usersService.searchByUsername(query);
+  }
 
   @Post()
   create(@Body() addUserDto: AddUserDto) {
@@ -62,11 +73,16 @@ export class UsersController {
   }
 
   @Post('create-ghost-client')
+  @UseGuards(JwtAuthGuard)
   async createGhostClient(
-    @Body() createClientDto: CreateClientDto,
-  ): Promise<GhostClientDto> {
-    const ghostClient =
-      await this.usersService.createGhostClient(createClientDto);
+    @User() user: UserDto,
+    @Body() createClientDto: CreateGhostClientDto,
+  ): Promise<CreateGhostClientDto> {
+    const userId = user.id;
+    const ghostClient = await this.usersService.createGhostClient(
+      createClientDto,
+      userId,
+    );
     return ghostClient;
   }
 }

@@ -5,9 +5,11 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Bundle } from './bundle.entity';
 import { Trainer } from './trainer.entity';
 import { Users } from './users.entity';
 
@@ -32,6 +34,9 @@ export class Client {
 
   @Column({ type: 'varchar', nullable: true })
   phoneNumber: string;
+
+  @OneToMany(() => Bundle, (bundle) => bundle.client)
+  bundles: Bundle[];
 }
 
 @Entity()
@@ -50,4 +55,7 @@ export class GhostClient {
 
   @Column({ type: 'varchar', nullable: true })
   phoneNumber: string;
+
+  @OneToMany(() => Bundle, (bundle) => bundle.ghostClient)
+  bundles: Bundle[];
 }

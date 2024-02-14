@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddUserDto } from 'src/dto/AddUser.dto';
-import { ClientDto, CreateClientDto } from 'src/dto/client.dto';
+import { ClientDto, CreateGhostClientDto } from 'src/dto/client.dto';
 import { TrainerDto } from 'src/dto/trainer.dto';
 import { PasswordReset } from 'src/entites/PasswordReset.entity';
 import { Client, GhostClient } from 'src/entites/client.entity';
@@ -211,24 +211,25 @@ export class UsersService {
   }
 
   async createGhostClient(
-    createClientDto: CreateClientDto,
-  ): Promise<GhostClient> {
-    // Create a new GhostClient instance
-    const ghostClient = new GhostClient();
-    ghostClient.firstName = createClientDto.firstName;
-    ghostClient.lastName = createClientDto.lastName;
-    ghostClient.phoneNumber = createClientDto.phoneNumber;
+    createGhostClientDto: CreateGhostClientDto,
+    userId: number,
+  ): Promise<CreateGhostClientDto> {
+    const trainerId = await this.getTrainerIdFromUserId(userId);
 
-    // Fetch the trainer and associate with the ghost client
-    const trainer = await this.trainerRepository.findOne({
-      where: { id: createClientDto.trainerId },
+    const existingClient = await this.ghostClientRepository.findOne({
+      where: {
+        /* unique identifier, e.g., phoneNumber: createClientDto.phoneNumber */ phoneNumber:
+          createGhostClientDto.phoneNumber,
+      },
     });
-    if (!trainer) {
-      throw new NotFoundException('Trainer not found');
+    const ghostClient = this.ghostClientRepository.create({
+      ...createGhostClientDto,
+      trainer: { id: trainerId },
+    });
+    if (existingClient) {
+      throw new Error('Client already exists');
     }
-    ghostClient.trainer = trainer;
 
-    // Save the new ghost client
     return this.ghostClientRepository.save(ghostClient);
   }
 
@@ -285,5 +286,28 @@ export class UsersService {
     if (passwordReset) {
       await this.passwordResetRepository.remove(passwordReset);
     }
+  }
+
+  async searchByUsername(username: string): Promise<Users[]> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('LOWER(user.username) LIKE LOWER(:username)', {
+        username: `%${username}%`,
+      })
+      .select(['user.id', 'user.username', 'user.email'])
+      .getMany();
+  }
+
+  async getTrainerIdFromUserId(userId: number): Promise<number> {
+    const trainer = await this.trainerRepository.findOne({
+      where: { user: { id: userId } },
+      select: ['id'],
+    });
+
+    if (!trainer) {
+      throw new NotFoundException('Trainer not found');
+    }
+
+    return trainer.id;
   }
 }

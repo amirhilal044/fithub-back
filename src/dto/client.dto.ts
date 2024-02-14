@@ -1,4 +1,3 @@
-import { TrainerDto } from './trainer.dto';
 import { UserDto } from './user.dto';
 
 export class ClientDto {
@@ -9,17 +8,16 @@ export class ClientDto {
   phoneNumber: string | null;
 }
 
-export class CreateClientDto {
+export class CreateGhostClientDto {
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  trainerId: number;
 }
 
-export class GhostClientDto {
-  id: number;
-  trainer: TrainerDto;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-}
+// export class GhostClientDto {
+//   id: number;
+//   trainer: TrainerDto;
+//   firstName: string;
+//   lastName: string;
+//   phoneNumber: string;
+// }
