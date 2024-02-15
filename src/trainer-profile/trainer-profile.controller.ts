@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
-import { CreateBundleDto } from 'src/dto/create-bundle.dto';
+import { BundleDto, CreateBundleDto } from 'src/dto/create-bundle.dto';
+import { CreateSessionEventDto } from 'src/dto/create-session-event.dto';
 import { TrainerProfileDto } from 'src/dto/trainer.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { Trainer } from 'src/entites/trainer.entity';
@@ -46,5 +55,37 @@ export class TrainerProfileController {
       createBundleDto,
       userId,
     );
+  }
+
+  @Post('create-event')
+  createOrUpdateEvent(@Body() createSessionEventDto: CreateSessionEventDto) {
+    return this.trainerProfileService.createOrUpdateSessionEvent(
+      createSessionEventDto,
+    );
+  }
+
+  @Get('bundle:id')
+  getBundleById(@Param('id') bundleId: number) {
+    return this.trainerProfileService.getBundleById(+bundleId);
+  }
+
+  @Get('client-bundle/:clientId')
+  async getBundlesByClientId(
+    @Param('clientId') clientId: number,
+    @Query('isGhost') isGhost: string, // Query parameters are always strings
+  ): Promise<BundleDto[]> {
+    // Convert isGhost query parameter to a boolean
+    const isGhostBoolean = isGhost === 'true';
+
+    return this.trainerProfileService.getBundlesByClientId(
+      clientId,
+      isGhostBoolean,
+    );
+  }
+
+  @Get('events')
+  async getEventsByBundleId(@User() user: UserDto) {
+    const userId = user.id;
+    return this.trainerProfileService.getEventsByTrainerId(userId);
   }
 }

@@ -1,5 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  AfterLoad,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Client, GhostClient } from './client.entity';
+import { SessionEvent } from './session-event.entity';
 
 @Entity()
 export class Bundle {
@@ -22,4 +30,19 @@ export class Bundle {
     nullable: true,
   })
   ghostClient: GhostClient | null;
+
+  @OneToMany(() => SessionEvent, (sessionEvent) => sessionEvent.sessionBundle)
+  sessionEvents: SessionEvent[];
+
+  @Column({ default: false })
+  done: boolean;
+
+  remainingSessions?: number;
+
+  @AfterLoad()
+  calculateRemainingSessions() {
+    const completedSessions =
+      this.sessionEvents?.filter((session) => session.done).length || 0;
+    this.remainingSessions = this.sessionsNumber - completedSessions;
+  }
 }
