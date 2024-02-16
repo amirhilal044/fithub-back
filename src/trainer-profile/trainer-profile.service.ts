@@ -103,6 +103,7 @@ export class TrainerProfileService {
 
     let bundle = this.bundleRepository.create({
       ...createBundleDto,
+      remainingSessions: createBundleDto.sessionsNumber,
       client: createBundleDto.isGhost ? null : associatedClient,
       ghostClient: createBundleDto.isGhost ? associatedClient : null,
     });
@@ -146,55 +147,47 @@ export class TrainerProfileService {
   async createOrUpdateSessionEvent(
     createSessionEventDto: CreateSessionEventDto,
   ): Promise<SessionEvent> {
+    const bundle = await this.bundleRepository.findOneOrFail({
+      where: { id: createSessionEventDto.sessionsBundleId },
+    });
+
+    if (
+      !createSessionEventDto.sessionsBundleSessionId &&
+      bundle.remainingSessions <= 0
+    ) {
+      throw new Error('No sessions left in this bundle.');
+    }
+
     let sessionEvent: SessionEvent;
 
-    // Check if updating an existing session event
     if (createSessionEventDto.sessionsBundleSessionId) {
+      // Fetch and update an existing session event
       sessionEvent = await this.sessionEventRepository.findOneOrFail({
         where: { id: createSessionEventDto.sessionsBundleSessionId },
       });
-      // Update fields but ignore 'done' as it will be determined by time
+
       sessionEvent.description = createSessionEventDto.description;
       sessionEvent.location = createSessionEventDto.location;
       sessionEvent.startDateTime = createSessionEventDto.startDateTime;
       sessionEvent.endDateTime = createSessionEventDto.endDateTime;
-      // Assume done is managed separately, e.g., by a scheduled task or manual update
+      // Other fields to update...
     } else {
-      // Creating a new session event, associating it with the bundle
+      // Create a new session event
       sessionEvent = this.sessionEventRepository.create({
         ...createSessionEventDto,
-        sessionBundle: await this.bundleRepository.findOneOrFail({
-          where: { id: createSessionEventDto.sessionsBundleId },
-        }),
-        done: false,
-
-        // 'done' should not be set here; it's determined by time or manual action later
+        sessionBundle: bundle,
+        done: false, // Assuming 'done' is managed elsewhere
       });
+
+      bundle.remainingSessions -= 1;
+      await this.bundleRepository.save(bundle);
     }
 
+    // Save the updated or new session event
     await this.sessionEventRepository.save(sessionEvent);
 
-    // No need to call updateBundleStatus here if 'done' is managed based on time
     return sessionEvent;
   }
-
-  // async updateBundleStatus(bundleId: number): Promise<Bundle> {
-  //   const bundle = await this.bundleRepository.findOneOrFail({
-  //     where: { id: bundleId },
-  //     relations: ['sessionEvents'],
-  //   });
-
-  //   const completedSessions = bundle.sessionEvents.filter(
-  //     (session) => session.done,
-  //   ).length;
-
-  //   if (completedSessions >= bundle.sessionsNumber) {
-  //     bundle.done = true;
-  //     await this.bundleRepository.save(bundle);
-  //   }
-
-  //   return bundle;
-  // }
 
   async getBundleById(bundleId: number): Promise<BundleDto> {
     const bundle = await this.bundleRepository.findOne({
@@ -224,28 +217,27 @@ export class TrainerProfileService {
     let bundles;
 
     if (isGhost) {
-      // Fetch bundles associated with a GhostClient
+      // Fetch bundles associated with a GhostClient, including remainingSessions directly
       bundles = await this.bundleRepository.find({
         where: { ghostClient: { id: clientId } },
         relations: ['sessionEvents', 'ghostClient'],
       });
     } else {
-      // Fetch bundles associated with a regular Client
+      // Fetch bundles associated with a regular Client, including remainingSessions directly
       bundles = await this.bundleRepository.find({
         where: { client: { id: clientId } },
         relations: ['sessionEvents', 'client'],
       });
     }
 
-    // Optionally calculate remaining sessions for each bundle and map to DTOs
+    // Map to DTOs, assuming BundleDto includes a property for remainingSessions
     const bundleDtos = bundles.map((bundle) => {
-      const completedSessions = bundle.sessionEvents.filter(
-        (session) => session.done,
-      ).length;
-      const remainingSessions = bundle.sessionsNumber - completedSessions;
-
-      // Construct and return the DTO for each bundle
-      return { ...bundle, remainingSessions };
+      // Directly use remainingSessions from the Bundle entity
+      return {
+        ...bundle,
+        // Ensure to correctly map or spread the bundle properties as needed for the DTO
+        remainingSessions: bundle.remainingSessions,
+      };
     });
 
     return bundleDtos;
@@ -271,7 +263,8 @@ export class TrainerProfileService {
         'sessionEvent.endDateTime AS endDateTime',
         'sessionEvent.description AS description',
         'sessionEvent.location AS location',
-        // Select client or ghost client name, handle nulls directly in the query
+        'sessionEvent.sessionBundleId AS sessionBundleId',
+        'bundle.sessionsNumber AS sessionsNumber',
         'COALESCE(client.firstName, ghostClient.firstName) AS firstName',
         'COALESCE(client.lastName, ghostClient.lastName) AS lastName',
       ])

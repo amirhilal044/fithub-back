@@ -84,7 +84,7 @@ export class TrainerProfileController {
   }
 
   @Get('events')
-  async getEventsByBundleId(@User() user: UserDto) {
+  async getEventsByUserId(@User() user: UserDto) {
     const userId = user.id;
     return this.trainerProfileService.getEventsByTrainerId(userId);
   }

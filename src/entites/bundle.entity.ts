@@ -1,5 +1,4 @@
 import {
-  AfterLoad,
   Column,
   Entity,
   ManyToOne,
@@ -37,12 +36,6 @@ export class Bundle {
   @Column({ default: false })
   done: boolean;
 
-  remainingSessions?: number;
-
-  @AfterLoad()
-  calculateRemainingSessions() {
-    const completedSessions =
-      this.sessionEvents?.filter((session) => session.done).length || 0;
-    this.remainingSessions = this.sessionsNumber - completedSessions;
-  }
+  @Column('int')
+  remainingSessions: number;
 }
