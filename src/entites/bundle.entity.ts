@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Client, GhostClient } from './client.entity';
 import { SessionEvent } from './session-event.entity';
+import { Trainer } from './trainer.entity';
 
 @Entity()
 export class Bundle {
@@ -38,4 +39,7 @@ export class Bundle {
 
   @Column('int')
   remainingSessions: number;
+
+  @ManyToOne(() => Trainer, (trainer) => trainer.bundles)
+  trainer: Trainer;
 }

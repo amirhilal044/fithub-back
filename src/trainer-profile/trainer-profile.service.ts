@@ -101,11 +101,13 @@ export class TrainerProfileService {
       throw new Error('Client does not belong to the trainer');
     }
 
+    // Assuming you've added a 'trainer' relation to the Bundle entity as discussed
     let bundle = this.bundleRepository.create({
       ...createBundleDto,
       remainingSessions: createBundleDto.sessionsNumber,
       client: createBundleDto.isGhost ? null : associatedClient,
       ghostClient: createBundleDto.isGhost ? associatedClient : null,
+      trainer: { id: trainerId }, // Directly link the bundle to the trainer
     });
 
     return this.bundleRepository.save(bundle);
@@ -210,22 +212,29 @@ export class TrainerProfileService {
     return bundleDto;
   }
 
-  async getBundlesByClientId(
+  async getBundlesByClientAndTrainerId(
+    userId: number,
     clientId: number,
     isGhost: boolean,
   ): Promise<BundleDto[]> {
+    const trainerId = await this.getTrainerIdFromUserId(userId);
+
     let bundles;
 
     if (isGhost) {
-      // Fetch bundles associated with a GhostClient, including remainingSessions directly
       bundles = await this.bundleRepository.find({
-        where: { ghostClient: { id: clientId } },
+        where: {
+          ghostClient: { id: clientId },
+          trainer: { id: trainerId },
+        },
         relations: ['sessionEvents', 'ghostClient'],
       });
     } else {
-      // Fetch bundles associated with a regular Client, including remainingSessions directly
       bundles = await this.bundleRepository.find({
-        where: { client: { id: clientId } },
+        where: {
+          client: { id: clientId },
+          trainer: { id: trainerId },
+        },
         relations: ['sessionEvents', 'client'],
       });
     }

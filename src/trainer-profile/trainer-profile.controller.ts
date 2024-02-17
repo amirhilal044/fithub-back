@@ -71,13 +71,17 @@ export class TrainerProfileController {
 
   @Get('client-bundle/:clientId')
   async getBundlesByClientId(
+    @User() user: UserDto,
     @Param('clientId') clientId: number,
     @Query('isGhost') isGhost: string, // Query parameters are always strings
   ): Promise<BundleDto[]> {
     // Convert isGhost query parameter to a boolean
     const isGhostBoolean = isGhost === 'true';
 
-    return this.trainerProfileService.getBundlesByClientId(
+    const userId = user.id;
+
+    return this.trainerProfileService.getBundlesByClientAndTrainerId(
+      userId,
       clientId,
       isGhostBoolean,
     );

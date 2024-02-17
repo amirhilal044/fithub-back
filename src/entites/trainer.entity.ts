@@ -8,6 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Bundle } from './bundle.entity';
 import { Client, GhostClient } from './client.entity';
 import { Users } from './users.entity';
 
@@ -32,6 +33,9 @@ export class Trainer {
 
   @Column({ nullable: true })
   lastName: string;
+
+  @OneToMany(() => Bundle, (bundle) => bundle.trainer)
+  bundles: Bundle[];
 
   @Column({ nullable: true, type: 'text' })
   briefBio: string;
