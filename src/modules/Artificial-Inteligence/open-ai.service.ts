@@ -1,45 +1,46 @@
-// open-ai.service.ts
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { lastValueFrom } from 'rxjs';
+import { InjectRepository } from '@nestjs/typeorm';
+import OpenAI from 'openai';
+import { Options } from 'src/entites/option.entity';
+import { Repository } from 'typeorm';
 
+const openai = new OpenAI({
+  apiKey: process.env.openAiKey,
+  organization: process.env.openAiOrg, // Optional, only if you're part of an organization
+});
 @Injectable()
 export class OpenAiService {
-  constructor(private httpService: HttpService) {}
+  constructor(
+    @InjectRepository(Options)
+    private optionsRepository: Repository<Options>,
+  ) {}
 
-  async createWorkoutPlan(prompt: string): Promise<any> {
-    const apiKey = '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'; // Use environment variable for the API key
-    const headersRequest = {
-      Authorization: `Bearer ${apiKey}`,
-    };
-
-    const body = {
-      inputs: prompt,
-      parameters: {
-        max_length: 500, // Adjust this value as needed
-      },
-      options: {
-        trust_remote_code: true, // Only set this if you trust the model source
-      },
-    };
-
+  async createWorkoutPlan(messageContent: any): Promise<any> {
     try {
-      const response = this.httpService.post(
-        'https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B',
-        body,
-        { headers: headersRequest },
-      );
-      const responseData = await lastValueFrom(response);
-      return responseData.data;
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a personal trainer.',
+          },
+          {
+            role: 'user',
+            content: messageContent,
+          },
+        ],
+        max_tokens: 4096,
+        temperature: 0.7,
+      });
+      return completion.choices[0].message.content;
     } catch (error) {
-      console.error('Error calling Hugging Face API:', error);
+      console.error('Error calling OpenAI:', error);
       throw error;
     }
   }
+
+  async findAll(): Promise<Options[]> {
+    // Should return an array of Option entities
+    return this.optionsRepository.find();
+  }
 }
-
-// READ
-// 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
-
-// WRITE
-// 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
