@@ -1,23 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import OpenAI from 'openai';
 import { Options } from 'src/entites/option.entity';
 import { Repository } from 'typeorm';
 
-const openai = new OpenAI({
-  apiKey: process.env.openAiKey,
-  organization: process.env.openAiOrg, // Optional, only if you're part of an organization
-});
 @Injectable()
 export class OpenAiService {
+  private openai: OpenAI;
+
   constructor(
     @InjectRepository(Options)
     private optionsRepository: Repository<Options>,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.openai = new OpenAI({
+      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
+      organization: this.configService.get<string>('OPENAI_ORG'),
+    });
+  }
 
   async createWorkoutPlan(messageContent: any): Promise<any> {
     try {
-      const completion = await openai.chat.completions.create({
+      const completion = await this.openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
