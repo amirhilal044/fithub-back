@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { User } from 'src/decorators/user.decorator';
 import { OptionsDTO } from 'src/dto/options.dto';
+import { UserDto } from 'src/dto/user.dto';
 import { WorkoutPlanTrainerDto } from 'src/dto/workoutPlanTrainerI.dto';
 import { JwtAuthGuard } from '../auth/local-auth.guard';
 import { OpenAiService } from './open-ai.service';
@@ -14,20 +16,27 @@ export class OpenAiController {
   }
 
   @Post('/workout-plan')
-  async createWorkoutPlan(@Body() workoutPlanDto: WorkoutPlanTrainerDto) {
+  async createWorkoutPlan(
+    @User() user: UserDto,
+    @Body() workoutPlanDto: WorkoutPlanTrainerDto,
+  ) {
+    const userId = user.id;
+
     const prompt = `As my personal trainer, based on this information: ${JSON.stringify(
       workoutPlanDto,
     )} please create a custom workout plan for me.`;
-    const response = await this.openAiService.createWorkoutPlan(prompt);
+    const response = await this.openAiService.createWorkoutPlan(userId, prompt);
     return response;
   }
 
   @Post('/meal-plan')
-  async createMealPlan(@Body() mealPlanDto: any) {
+  async createMealPlan(@User() user: UserDto, @Body() mealPlanDto: any) {
+    const userId = user.id;
+
     const prompt = `As my nutritionist, based on this information: ${JSON.stringify(
       mealPlanDto,
     )} please create a custom meal plan for me.`;
-    const response = await this.openAiService.createMealPlan(prompt);
+    const response = await this.openAiService.createMealPlan(userId, prompt);
     return response;
   }
 }

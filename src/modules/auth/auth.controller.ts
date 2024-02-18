@@ -1,8 +1,7 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { LoginDto } from 'src/dto/Login.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { AuthService, ResetPasswordDto } from './auth.service';
-import { JwtAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,10 +17,11 @@ export class AuthController {
     return {
       accessToken,
       user: {
-        id: user.userId,
+        id: user.id,
         username: user.username,
         email: user.email,
         userType: user.userType,
+        aiRequestToken: user.aiRequestToken,
       },
     };
   }

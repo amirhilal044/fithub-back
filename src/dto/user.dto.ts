@@ -3,5 +3,6 @@ export class UserDto {
   username: string;
   email: string;
   userType?: string;
-  // Exclude the password and any other sensitive fields
+  aiRequestToken: number;
+  trainerId?: number;
 }

@@ -46,13 +46,7 @@ export class AuthService {
 
   async login(user: LoginDto): Promise<{
     accessToken: string;
-    user: {
-      userId: number;
-      username: string;
-      email: string;
-      trainerId?: number;
-      userType?: string;
-    };
+    user: UserDto;
   }> {
     const validatedUser = await this.validateUser(user.username, user.password);
     if (!validatedUser) {
@@ -69,11 +63,12 @@ export class AuthService {
     const userType = trainer ? 'trainer' : 'client';
     const accessToken = this.jwtService.sign(payload);
     const userResponse = {
-      userId: payload.userId,
+      id: payload.userId,
       username: payload.username,
       email: payload.email,
       trainerId: trainer ? trainer.id : undefined,
-      userType, // Add userType to the response
+      userType,
+      aiRequestToken: validatedUser.aiRequestToken,
     };
     return {
       accessToken,

@@ -191,6 +191,7 @@ export class UsersService {
         id: trainer.user.id,
         username: trainer.user.username,
         email: trainer.user.email,
+        aiRequestToken: trainer.user.aiRequestToken,
       },
       clients: trainer.clients.map(
         (client) =>
