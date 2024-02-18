@@ -1,4 +1,5 @@
 .env
+.src/config/typeorm.config.json
 /src/config/typeorm.config.json
 # compiled output
 /dist

@@ -17,7 +17,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors({
-    origin: 'http://localhost:4200', // Angular server
+    // origin: 'http://localhost:4200', // Angular server
+    origin: ['https://fithublb.netlify.app', 'http://localhost:4200'],
     methods: 'GET,POST,PUT,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,
