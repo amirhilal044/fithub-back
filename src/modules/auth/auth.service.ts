@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/dto/Login.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { Trainer } from 'src/entites/trainer.entity';
+import { Users } from 'src/entites/users.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { UsersService } from '../users/users.service';
@@ -30,6 +31,9 @@ export class AuthService {
     @InjectRepository(Trainer)
     private readonly trainerRepository: Repository<Trainer>,
     private readonly mailerService: MailerService,
+
+    @InjectRepository(Users)
+    private usersRepository: Repository<Users>,
   ) {}
 
   async validateUser(
@@ -108,5 +112,16 @@ export class AuthService {
     }
     // Hash the new password and update it in the database
     await this.usersService.updatePassword(email, newPassword);
+  }
+
+  async changePassword(userId: number, newPassword: string): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.update(userId, { password: hashedPassword });
   }
 }

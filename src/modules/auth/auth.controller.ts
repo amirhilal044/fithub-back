@@ -1,13 +1,14 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
+import { User } from 'src/decorators/user.decorator';
 import { LoginDto } from 'src/dto/Login.dto';
 import { UserDto } from 'src/dto/user.dto';
 import { AuthService, ResetPasswordDto } from './auth.service';
+import { JwtAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  // @UseGuards(JwtAuthGuard)
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
@@ -40,8 +41,18 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
-  ): Promise<{ message: string }> {
+  ): Promise<string> {
     await this.authService.resetPassword(resetPasswordDto);
-    return { message: 'Your password has been successfully reset.' };
+    return 'Your password has been successfully reset.';
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('change-password')
+  async changePassword(
+    @User() user: UserDto,
+    @Body() body: { newPassword: string },
+  ) {
+    const userId = user.id;
+    await this.authService.changePassword(userId, body.newPassword);
   }
 }
