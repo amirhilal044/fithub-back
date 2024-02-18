@@ -3,7 +3,6 @@ import { MailerService } from '@nestjs-modules/mailer';
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -100,18 +99,6 @@ export class AuthService {
       subject: 'Reset Your Password',
       text: `Please click the following link to reset your password: ${resetUrl}`,
     });
-  }
-
-  async resetPassword(dto: ResetPasswordDto): Promise<void> {
-    const { email, token, newPassword } = dto;
-
-    // Validate the reset token
-    const user = await this.usersService.validateResetToken(email, token);
-    if (!user) {
-      throw new NotFoundException('Invalid or expired reset token');
-    }
-    // Hash the new password and update it in the database
-    await this.usersService.updatePassword(email, newPassword);
   }
 
   async changePassword(userId: number, newPassword: string): Promise<void> {

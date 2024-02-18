@@ -2,7 +2,7 @@ import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
 import { LoginDto } from 'src/dto/Login.dto';
 import { UserDto } from 'src/dto/user.dto';
-import { AuthService, ResetPasswordDto } from './auth.service';
+import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
@@ -36,14 +36,6 @@ export class AuthController {
       message:
         'If a user with that email exists, a password reset email has been sent.',
     };
-  }
-
-  @Post('reset-password')
-  async resetPassword(
-    @Body() resetPasswordDto: ResetPasswordDto,
-  ): Promise<string> {
-    await this.authService.resetPassword(resetPasswordDto);
-    return 'Your password has been successfully reset.';
   }
 
   @UseGuards(JwtAuthGuard)
